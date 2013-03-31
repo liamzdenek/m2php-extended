@@ -14,7 +14,7 @@ $config = array
 
     'handlers' => array
     (
-        'default' => array('DefaultController', 'adefault_action'),
+        'default' => array('DefaultController', 'default_action'),
     ),
 );
 
