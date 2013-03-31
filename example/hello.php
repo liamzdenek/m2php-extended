@@ -1,18 +1,31 @@
 <?php
 
-use Mongrel2\Connection;
+require "../framework/server.php";
+$config = array
+(
+    'uuid' => '82209006-86FF-4982-B5EA-D1E29E55D481',
+    'sub_addr' => 'tcp://127.0.0.1:9997',
+    'pub_addr' => 'tcp://127.0.0.1:9996',
+    
+    'routes' => array
+    (
+        '#/(.*)#' => 'default',
+    ),
 
-require __DIR__.'/../vendor/autoload.php';
+    'handlers' => array
+    (
+        'default' => array('DefaultController', 'adefault_action'),
+    ),
+);
 
-$sender_id = "82209006-86FF-4982-B5EA-D1E29E55D481";
-$conn = new Connection($sender_id, "tcp://127.0.0.1:9997", "tcp://127.0.0.1:9996");
-
-while (true) {
-    $req = $conn->recv();
-
-    if ($req->is_disconnect()) {
-        continue;
+class DefaultController
+{
+    function default_action($conn, $req, $args)
+    {
+        $conn->reply_http($req, "args: ".print_r($args, true)); 
     }
-
-    $conn->reply_http($req, 'Hello World');
 }
+
+$server = new Server($config);
+$server->run();
+
