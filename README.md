@@ -19,7 +19,7 @@ This framework was designed to extend m2php with commonly needed functionality (
 Example
 -------
 
-See example/hello.php for the latest version
+See example/hello_world/hello.php for the latest version
 
 ```php
 require "../framework/server.php";
@@ -52,6 +52,9 @@ $server = new Server($config);
 $server->run();
 ```
 
+Basics
+======
+
 Routes
 ------
 A route is a regular expression that points to a handler. When a regular expression matches the URI, the corresponding handler is called.
@@ -59,3 +62,7 @@ A route is a regular expression that points to a handler. When a regular express
 Handlers
 --------
 A handler points to a function in a class. When a handler is called, an instance of that class is created, and the corresponding function within it is called.
+
+Session
+-------
+The session represents all of the data associated with the user. Abstract class "Session" handles all of the basic adding/removing data and cookie management. FilesystemSession extends Session and adds basic disk I/O.
