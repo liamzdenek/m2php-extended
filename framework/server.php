@@ -19,6 +19,14 @@ class Server
     {
         $this->config = $config;
         $this->_conn = new Connection($config['uuid'], $config['sub_addr'], $config['pub_addr']);
+        if(!isset($this->config['session_class']))
+        {
+            $this->config['session_class'] = 'FilesystemSession';
+        }
+        if(!isset($this->config['request_class']))
+        {
+            $this->config['request_class'] = 'ERequest';
+        }
     }
 
     function run()
@@ -54,8 +62,14 @@ class Server
                         {
                             throw new Exception("No such function '$func_name' in '$class_name' (via handler '$handler')");
                         }
+                        
                         array_shift($args);
-                        $class->$func_name($conn, $req, $args);
+
+                        $request_class = $this->config['request_class'];
+                        echo "Serving: ".$req->path."\n";
+                        $ereq = new $request_class($this, $req);
+
+                        $class->$func_name($ereq);
                         break;
                     }
                     catch(Exception $e) 
@@ -65,5 +79,124 @@ class Server
                 }
             }
         }
+    }
+}
+
+class ERequest
+{
+    var
+        $_req,
+        $_sess,
+        $_serv,
+        $headers,
+        $content_type = 'text/html';
+
+    function __construct($serv, $req)
+    { 
+        $this->_req  = $req;
+        $this->_serv = $serv;
+
+        $sess_class = $serv->config['session_class'];
+        $this->_sess = new $sess_class($this);
+    } 
+
+    function get_request(){ return $this->_req;  }
+    function get_session(){ return $this->_sess; }
+    function get_server() { return $this->_serv; }
+
+    function add_header($v){ $this->headers[] = $v; }
+
+    function reply_http($body,$code=200,$status="OK")
+    {
+        $this->add_header("Content-Type: ".$this->content_type);
+        $this->get_server()->_conn->reply_http($this->get_request(), $body, $code, $status, $this->headers);
+        $this->_sess->save();
+    }
+}
+
+abstract class Session
+{
+    var 
+        $cookies,
+        $sess_id,
+        $_req,
+        $data = array(),
+        $has_changes = false,
+        $sess_cookie_name = "SESSID";
+
+    abstract protected function save();
+    abstract protected function load();
+
+    function __construct($req)
+    {
+        $this->_req = $req;
+        if(isset($req->get_request()->headers->cookie))
+        {
+            foreach(explode("; ", $req->get_request()->headers->cookie) as $cookie)
+            {
+                list($key, $value) = explode("=", $cookie);
+                $this->cookies[$key] = $value;
+            }
+        }
+        if($this->cookies[$this->sess_cookie_name])
+        {
+            $this->sess_id = preg_replace("#/#", "", $this->cookies[$this->sess_cookie_name]);
+        }
+        else
+        {
+            $rand = preg_replace("#/#", "", base64_encode(openssl_random_pseudo_bytes(32)));
+            $this->add_cookie($this->sess_cookie_name, $rand);
+        }
+        $this->load();
+    }
+
+    public function add_cookie($key, $value, $expire=null)
+    {
+        if($expire != null)
+        {
+            $this->_req->add_header("Set-Cookie: ".$key."=".$value."; expires=".$expire);
+        }
+        else
+        {
+            $this->_req->add_header("Set-Cookie: ".$key."=".$value);
+        }
+    }
+
+    public function get($key)
+    {
+        return $this->data[$key];
+    }
+
+    public function set($key, $val)
+    {
+        $this->has_changes = true;
+        $this->data[$key] = $val;
+    }
+}
+
+class FilesystemSession extends Session
+{
+    private $file_path;
+
+    public function save()
+    {
+        if($this->has_changes)
+        {
+            file_put_contents($this->file_path, json_encode($this->data));
+        }
+    }
+
+    public function load()
+    {
+        $this->file_path = getcwd()."/tmp/sess/".$this->cookies[$this->sess_cookie_name]; 
+        if(file_exists($this->file_path))
+        {
+            $this->data = json_decode(file_get_contents($this->file_path));
+        }
+        else
+        {
+            $this->data = array();
+            $this->has_changes = 1;
+        }    
     }
 }

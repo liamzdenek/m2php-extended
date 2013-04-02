@@ -22,10 +22,10 @@ class Tool
         if (is_null($headers)) {
             $headers = array();
         }
-        $headers['Content-Length'] = strlen($body);
+        $headers[] = "Content-Length: ".strlen($body);
         $hd = "";
-        foreach($headers as $k => $v) {
-            $hd .= sprintf("%s: %s\r\n", $k, $v);
+        foreach($headers as $v) {
+            $hd .= sprintf("%s\r\n", $v);
         }
         return sprintf($http, $code, $status, $hd, $body);
     }
