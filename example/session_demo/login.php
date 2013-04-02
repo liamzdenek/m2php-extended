@@ -38,20 +38,44 @@ class DefaultController
 
     function login_page($req)
     {
-        $req->reply_http($this->login_html);
+        $username = $req->get_session()->get("username");
+        if(empty($username))
+        {
+            $req->reply_http($this->login_html);
+        }
+        else
+        {
+            $req->reply_http
+            (
+                '<p>You\'re logged in under the username "'.$req->get_session()->get("username").'"</p>'.
+                '<a href="/logout">Logout</a>'
+            );
+        }
     }
 
     function login_action($req)
     {
         parse_str($req->get_request()->body, $data);
-        if($data['username'] != "username" || $data['password'] != "asdf")
+        if($data['password'] != "asdf")
         {
             $req->reply_http("<p>Invalid username or password</p>".$this->login_html);
         }
         else
         {
-            $req->reply_http(print_r($req,true));
+            $req->get_session()->set("username", $data['username']);
+            $req->redirect("/"); 
         }
+    }
+
+    function logout_action($req)
+    {
+        $username = $req->get_session()->get("username");
+        if(!empty($username))
+        {
+            echo "Logging you out\n";
+            $req->get_session()->remove("username");
+        }
+        $req->redirect("/");
     }
 }
 $server = new Server($config);

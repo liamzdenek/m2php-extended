@@ -178,6 +178,13 @@ abstract class Session
         $this->has_changes = true;
         $this->sess_data[$key] = $val;
     }
+
+    // this is == unset... because fucking php won't let me name a function "unset"
+    public function remove($key)
+    {
+        $this->has_changes = true;
+        unset($this->sess_data[$key]);
+    }
 }
 
 class FilesystemSession extends Session
