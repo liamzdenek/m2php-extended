@@ -112,6 +112,12 @@ class ERequest
         $this->get_server()->_conn->reply_http($this->get_request(), $body, $code, $status, $this->headers);
         $this->_sess->save();
     }
+
+    function redirect($page, $code=307,$status="Temporary Redirect")
+    {
+        $this->add_header("Location: $page");
+        $this->reply_http('',$code,$status);
+    }
 }
 
 abstract class Session
@@ -120,7 +126,7 @@ abstract class Session
         $cookies,
         $sess_id,
         $_req,
-        $data = array(),
+        $sess_data = array(),
         $has_changes = false,
         $sess_cookie_name = "SESSID";
 
@@ -164,13 +170,13 @@ abstract class Session
 
     public function get($key)
     {
-        return $this->data[$key];
+        return array_key_exists($key, $this->sess_data) ? $this->sess_data[$key] : null;
     }
 
     public function set($key, $val)
     {
         $this->has_changes = true;
-        $this->data[$key] = $val;
+        $this->sess_data[$key] = $val;
     }
 }
 
@@ -182,7 +188,7 @@ class FilesystemSession extends Session
     {
         if($this->has_changes)
         {
-            file_put_contents($this->file_path, json_encode($this->data));
+            file_put_contents($this->file_path, json_encode($this->sess_data));
         }
     }
 
@@ -191,11 +197,11 @@ class FilesystemSession extends Session
         $this->file_path = getcwd()."/tmp/sess/".$this->cookies[$this->sess_cookie_name]; 
         if(file_exists($this->file_path))
         {
-            $this->data = json_decode(file_get_contents($this->file_path));
+            $this->sess_data = (array)json_decode(file_get_contents($this->file_path));
         }
         else
         {
-            $this->data = array();
+            $this->sess_data = array();
             $this->has_changes = 1;
         }    
     }
