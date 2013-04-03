@@ -1,6 +1,6 @@
 <?php
 
-require "../../framework/server.php";
+require "../../framework/Server.php";
 $config = array
 (
     'uuid' => '82209006-86FF-4982-B5EA-D1E29E55D481',

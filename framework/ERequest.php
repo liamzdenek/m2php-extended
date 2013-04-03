@@ -19,8 +19,19 @@ class ERequest
     } 
 
     function get_request(){ return $this->_req;  }
-    function get_session(){ return $this->_sess; }
     function get_server() { return $this->_serv; }
+    function get_session()
+    {
+        if(isset($this->_sess))
+        {
+            return $this->_sess;
+        }
+        else
+        {
+            $sess_class = $this->get_server()->config['session_class'];
+            return $this->_sess = new $sess_class($this);
+        }
+    }
 
     function add_header($v){ $this->headers[] = $v; }
 
@@ -35,5 +46,17 @@ class ERequest
     {
         $this->add_header("Location: $page");
         $this->reply_http('',$code,$status);
+    }
+
+    function forward($handler)
+    {
+        if(!isset($this->get_server()->config['handlers'][$handler]))
+        {
+            throw new Exception("No such handler '$handler'");
+        }
+        $class_name = $this->get_server()->config['handlers'][$handler][0];
+        $func_name  = $this->get_server()->config['handlers'][$handler][1];
+        $class = new $class_name;
+        $class->$func_name($this);
     }
 }
