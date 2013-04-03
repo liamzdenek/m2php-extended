@@ -1,8 +1,9 @@
 <?php
 ## potential names
 ## paradigm-php
+## neutrino-php
 
-## include the Mongrel2 framework
+## include the m2sh framework
 require __DIR__.'/Mongrel2/Connection.php';
 require __DIR__.'/Mongrel2/Request.php';
 require __DIR__.'/Mongrel2/Tool.php';
