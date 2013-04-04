@@ -22,7 +22,18 @@ class DefaultController
 {
     function default_action($req)
     {
-        $req->reply_http("Hello World"); 
+        $req->get_async()->add
+        (
+            new CountdownTimer
+            (
+                1, // seconds 
+                $req,
+                function($req)
+                {
+                    $req->reply_http("Async args: ".print_r($req, true));
+                }
+            )
+        );
     }
 }
 

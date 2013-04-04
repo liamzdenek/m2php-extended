@@ -2,17 +2,20 @@
 
 namespace Mongrel2;
 
-class Connection
+class Connection extends \Pollable
 {
     private $sender_id;
+    public $on_recv;
+    public $serv;
 
-    public function __construct($sender_id, $sub_addr, $pub_addr)
+    public function __construct($sender_id, $sub_addr, $pub_addr, $serv, $on_recv, $rcv_timeout=10)
     {
         $this->sender_id = $sender_id;
 
         $ctx = new \ZMQContext();
         $reqs = $ctx->getSocket(\ZMQ::SOCKET_UPSTREAM);
         $reqs->connect($sub_addr);
+        $reqs->setSockOpt(\ZMQ::SOCKOPT_RCVTIMEO, $rcv_timeout);
 
         $resp = $ctx->getSocket(\ZMQ::SOCKET_PUB);
         $resp->connect($pub_addr);
@@ -23,20 +26,21 @@ class Connection
 
         $this->reqs = $reqs;
         $this->resp = $resp;
+
+        $this->serv    = $serv;
+        $this->on_recv = $on_recv;
     }
 
-    public function recv()
+    public function on_poll()
     {
-        return Request::parse($this->reqs->recv());
-    }
-
-    public function recv_json()
-    {
-        $req = $this->recv();
-        if (!isset($req->data)) {
-            $req->data = json_decode($req->body);
+        if($recv = $this->reqs->recv())//\ZMQ::MODE_DONTWAIT))
+        {
+            $req = Request::parse($recv);
+            $recv = $this->on_recv;
+            $recv($this->serv,$req);
+            return true;
         }
-        return $req;
+        return false;
     }
 
     public function reply($req, $msg)
@@ -50,11 +54,6 @@ class Connection
         $this->resp->send($header . " " . $msg);
     }
 
-    public function reply_json($req, $data)
-    {
-        $this->send($req->sender, $req->conn_id, json_encode($data));
-    }
-
     public function reply_http($req, $body, $code = 200, $status = "OK", $headers = null)
     {
         $this->reply($req, Tool::http_response($body, $code, $status, $headers));
@@ -63,11 +62,6 @@ class Connection
     public function deliver($uuid, $idents, $data)
     {
         $this->send($uuid, join(' ', $idents),  $data);
-    }
-
-    public function deliver_json($uuid, $idents, $data)
-    {
-        $this->deliver($uuid, $idents, json_encode($data));
     }
 
     public function deliver_http($uuid, $idents, $body, $code = 200, $status = "OK", $headers = null)

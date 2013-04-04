@@ -13,13 +13,11 @@ class ERequest
     { 
         $this->_req  = $req;
         $this->_serv = $serv;
-
-        $sess_class = $serv->config['session_class'];
-        $this->_sess = new $sess_class($this);
     } 
 
     function get_request(){ return $this->_req;  }
     function get_server() { return $this->_serv; }
+    function get_async()  { return $this->_serv->_looper; }
     function get_session()
     {
         if(isset($this->_sess))
@@ -39,7 +37,10 @@ class ERequest
     {
         $this->add_header("Content-Type: ".$this->content_type);
         $this->get_server()->_conn->reply_http($this->get_request(), $body, $code, $status, $this->headers);
-        $this->_sess->save();
+        if(isset($this->_sess))
+        {
+            $this->_sess->save();
+        }
     }
 
     function redirect($page, $code=307,$status="Temporary Redirect")

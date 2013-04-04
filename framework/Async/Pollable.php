@@ -9,4 +9,9 @@ abstract class Pollable
     public function on_remove(){}
 
     abstract protected function on_poll();
+
+    function stop_polling()
+    {
+        $this->_looper->remove($this);
+    }
 }

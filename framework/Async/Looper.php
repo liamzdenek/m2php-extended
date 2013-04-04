@@ -10,7 +10,10 @@ class Looper
         {
             foreach($this->pollable as $po)
             {
-                $po->on_poll();
+                if($po != null)
+                {
+                    $po->on_poll();
+                }
             }
         }
     }
