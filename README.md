@@ -19,7 +19,7 @@ This framework was designed to extend m2php with commonly needed functionality (
 Example
 -------
 
-See example/hello_world/hello.php for the latest version
+See example/hello_world/hello.php for the latest version, as I might not be the most reliable at updating the readme.
 
 ```php
 require "../framework/server.php";
@@ -42,9 +42,9 @@ $config = array
 
 class DefaultController
 {
-    function default_action($conn, $req, $args)
+    function default_action($req)
     {
-        $conn->reply_http($req, "Hello, World!"); 
+        $req->reply_http("Hello, World!"); 
     }
 }
 
