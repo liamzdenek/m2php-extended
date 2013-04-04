@@ -26,7 +26,7 @@ class DefaultController
         (
             new CountdownTimer
             (
-                1, // seconds 
+                10, // seconds 
                 $req,
                 function($req)
                 {
