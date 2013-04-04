@@ -65,4 +65,9 @@ A handler points to a function in a class. When a handler is called, an instance
 
 Session
 -------
-The session represents all of the data associated with the user. Abstract class "Session" handles all of the basic adding/removing data and cookie management. FilesystemSession extends Session and adds basic disk I/O.
+The session represents all of the data associated with the user. Abstract class "Session" handles all of the basic adding/removing data and cookie management. FilesystemSession extends Session and adds basic disk I/O. For an example of sessions, see examples/session_demo
+
+Async
+-----
+An empowering, simple, and fast async handler is built in to this framework. This means that a single instance of the application can handle multiple requests from multiple users concurrently. This is particularly useful in long polling. See examples/async_hello_world. For a much more complex example, see examples/long_polling_chat
+
