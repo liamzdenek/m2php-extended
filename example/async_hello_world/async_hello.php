@@ -28,7 +28,7 @@ class DefaultController
             (
                 10, // seconds 
                 $req,
-                function($req)
+                function($timer, $req)
                 {
                     $req->reply_http("Async args: ".print_r($req, true));
                 }

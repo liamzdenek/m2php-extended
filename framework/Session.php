@@ -30,7 +30,7 @@ abstract class Session
         }
         else
         {
-            $rand = preg_replace("#/#", "", base64_encode(openssl_random_pseudo_bytes(32)));
+            $rand = preg_replace("#/#", "", base64_encode(uniqid()));
             $this->add_cookie($this->sess_cookie_name, $rand);
         }
         $this->load();
@@ -38,6 +38,7 @@ abstract class Session
 
     public function add_cookie($key, $value, $expire=null)
     {
+        $this->cookies[$key] = $value;
         if($expire != null)
         {
             $this->_req->add_header("Set-Cookie: ".$key."=".$value."; expires=".$expire);

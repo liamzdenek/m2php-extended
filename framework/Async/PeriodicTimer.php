@@ -26,10 +26,10 @@ class PeriodicTimer extends Pollable
         $mtime = microtime(true);
         if($this->last_poll+$this->period <= $mtime)
         {
+            $this->count++;
             $this->last_poll = $mtime;
             $func = $this->callback;
             $func($this, $this->args);
-            $this->count++;
         }
     }
 }
