@@ -23,7 +23,7 @@ class AbsoluteTimer extends Pollable
         if(microtime(true) >= $this->time)
         {
             $func = $this->callback;
-            $func($this->args);
+            $func($this, $this->args);
             $this->stop_polling(); 
         }
     }
