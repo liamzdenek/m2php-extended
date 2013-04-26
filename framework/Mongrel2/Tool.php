@@ -17,16 +17,19 @@ class Tool
 
     static public function http_response($body, $code, $status, $headers)
     {
-        $http = "HTTP/1.1 %s %s\r\n%s\r\n%s";
-
-        if (is_null($headers)) {
-            $headers = array();
-        }
-        $headers[] = "Content-Length: ".strlen($body);
+        
         $hd = "";
-        foreach($headers as $v) {
-            $hd .= sprintf("%s\r\n", $v);
+        if(!is_null($headers))
+        {
+            foreach($headers as $v) {
+                $hd .= sprintf("%s\r\n", $v);
+            }
         }
-        return sprintf($http, $code, $status, $hd, $body);
+
+        return "HTTP/1.1 $code $status\r\n".
+            $hd.
+            "Content-Length: ".strlen($body)."\r\n\r\n".
+            $body;
+
     }
 }

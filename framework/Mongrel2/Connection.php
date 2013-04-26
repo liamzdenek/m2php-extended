@@ -8,7 +8,7 @@ class Connection extends \Pollable
     public $on_recv;
     public $serv;
 
-    public function __construct($sender_id, $sub_addr, $pub_addr, $serv, $on_recv, $rcv_timeout=10)
+    public function __construct($sender_id, $sub_addr, $pub_addr, $serv, $on_recv, $rcv_timeout=100)
     {
         $this->sender_id = $sender_id;
 
@@ -33,7 +33,7 @@ class Connection extends \Pollable
 
     public function on_poll()
     {
-        if($recv = $this->reqs->recv())//\ZMQ::MODE_DONTWAIT))
+        while($recv = $this->reqs->recv())//\ZMQ::MODE_DONTWAIT))
         {
             $req = Request::parse($recv);
             $recv = $this->on_recv;

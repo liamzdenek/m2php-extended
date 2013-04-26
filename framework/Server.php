@@ -28,11 +28,36 @@ class Server
         $config  = null,
         $_conn   = null,
         $_looper = null,
-        $handler_cache = array();
+        $class_cache = array();
 
     function __construct($config)
     {
         $this->config = $config;
+
+        # verify that all of the handlers and methods exist
+        foreach($this->config['handlers'] as $handler => $m)
+        {
+            $class_name = $m[0];
+            $func_name  = $m[1];
+            if(!class_exists($class_name))
+            {
+                throw new Exception("No such class '$class_name' (via handler '$handler')");
+            }
+            $this->class_cache[$class_name] = $class = new $class_name; 
+            if(!method_exists($class,$func_name))
+            {
+                throw new Exception("No such function '$func_name' in '$class_name' (via handler '$handler')");
+            }
+        }
+
+        foreach($this->config['routes'] as $regex=>$handler)
+        {
+            if(!isset($this->config['handlers'][$handler]))
+            {
+                throw new Exception("No such handler '$handler' as required by path '$regex'");
+            }
+        }
+
         $this->_conn = new Connection
         (
             $config['uuid'], 
@@ -44,49 +69,20 @@ class Server
                 $args = array();
                 foreach($serv->config['routes'] as $regex=>$handler)
                 {
-                    if(preg_match($regex, $req->path, $args))
+                    $args = sscanf($req->path, $regex);
+                    
+                    if(is_array($args))
                     {
-                        try
-                        {
-                            if(!isset($serv->config['handlers'][$handler]))
-                            {
-                                throw new Exception("No such handler '$handler'");
-                            }
-                            
-                            $class_name = $serv->config['handlers'][$handler][0];
-                            $func_name  = $serv->config['handlers'][$handler][1];
-                            $class      = null;
+                        $class_name = $serv->config['handlers'][$handler][0];
+                        $func_name  = $serv->config['handlers'][$handler][1];
+                        $class = $serv->class_cache[$class_name];
+                        
+                        $request_class = $serv->config['request_class'];
+                        $ereq = new $request_class($serv, $req, $args);
+                        $ereq->url_args = $args;
 
-                            if(isset($serv->handler_cache[$class_name]))
-                            {
-                                $class = $serv->handler_cache[$class_name];
-                            }
-                            else
-                            {
-                                if(!class_exists($class_name))
-                                {
-                                    throw new Exception("No such class '$class_name' (via handler '$handler')");
-                                }
-                                $serv->handler_cache[$class_name] = $class = new $class_name; 
-                            }
-                            if(!method_exists($class,$func_name))
-                            {
-                                throw new Exception("No such function '$func_name' in '$class_name' (via handler '$handler')");
-                            }                            
-                            
-                            array_shift($args);
-
-                            $request_class = $serv->config['request_class'];
-                            //echo "Serving: ".$req->path."\n";
-                            $ereq = new $request_class($serv, $req);
-
-                            $class->$func_name($ereq);
-                            break;
-                        }
-                        catch(Exception $e) 
-                        {
-                            echo 'Caught Exception: '.$e->getMessage()."\n";
-                        }
+                        $class->$func_name($ereq);
+                        break;
                     }
                 }
             }

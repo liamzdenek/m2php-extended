@@ -6,6 +6,7 @@ class ERequest
         $_req,
         $_sess,
         $_serv,
+        $url_args,
         $headers,
         $content_type = 'text/html';
 
@@ -15,6 +16,14 @@ class ERequest
         $this->_serv = $serv;
     } 
 
+    function get_url_arg($key)
+    {
+        if(!isset($this->url_args))
+        {
+            parse_str($this->get_request()->headers->URI, $this->url_args);
+        }
+        return array_key_exists($key, $this->url_args) ? $this->url_args[$key]: null;
+    }
     function get_request(){ return $this->_req;  }
     function get_server() { return $this->_serv; }
     function get_async()  { return $this->_serv->_looper; }
