@@ -16,6 +16,10 @@ require __DIR__.'/Async/AbsoluteTimer.php';
 require __DIR__.'/Async/CountdownTimer.php';
 require __DIR__.'/Async/PeriodicTimer.php';
 
+## include this framework's singleton functionality
+require __DIR__.'/Singleton/Singleton.php';
+require __DIR__.'/Singleton/MySQL.php';
+
 ## include the m2sh framework
 require __DIR__.'/Mongrel2/Connection.php';
 require __DIR__.'/Mongrel2/Request.php';
@@ -34,7 +38,7 @@ class Server
 
     function get_singleton($key)
     {
-        return $this->singletons[$key];
+        return $this->singletons[$key]->get();
     }
 
     function set_singleton($key, $singleton)

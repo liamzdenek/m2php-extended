@@ -1,0 +1,6 @@
+CREATE DATABASE IF NOT EXISTS test;
+
+use test;
+
+CREATE TABLE test (k TEXT, v TEXT);
+

@@ -8,6 +8,7 @@ class ERequest
         $_sess,
         $_serv,
         $url_args,
+        $uri_args,
         $headers,
         $content_type = 'text/html';
 
@@ -17,17 +18,23 @@ class ERequest
         $this->_serv = $serv;
     } 
 
-    function get_url_arg($key)
+    function get_url_arg($index)
     {
-        if(!isset($this->url_args))
+        return $this->url_args[$index];
+    }
+
+    function get_uri_arg($key)
+    {
+        if(!isset($this->uri_args))
         {
-            parse_str($this->get_request()->headers->URI, $this->url_args);
+            parse_str($this->get_request()->headers->QUERY, $this->uri_args);
         }
-        return array_key_exists($key, $this->url_args) ? $this->url_args[$key]: null;
+        return array_key_exists($key, $this->uri_args) ? $this->uri_args[$key]: null;
     }
     function get_request(){ return $this->_req;  }
     function get_server() { return $this->_serv; }
     function get_async()  { return $this->_serv->_looper; }
+    function get_singleton($k) { return $this->_serv->get_singleton($k); }
     function get_session()
     {
         if(isset($this->_sess))
