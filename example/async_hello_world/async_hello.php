@@ -9,7 +9,7 @@ $config = array
     
     'routes' => array
     (
-        '#/(.*)#' => 'default',
+        '/%s' => 'default',
     ),
 
     'handlers' => array

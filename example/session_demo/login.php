@@ -9,9 +9,9 @@ $config = array
     
     'routes' => array
     (
-        '#/login#'  => 'login_action',
-        '#/logout#' => 'logout_action',
-        '#/(.*?)#'  => 'login_page',
+        '/login'  => 'login_action',
+        '/logout' => 'logout_action',
+        '/%s'     => 'login_page',
     ),
 
     'handlers' => array

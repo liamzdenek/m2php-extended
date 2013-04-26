@@ -9,12 +9,14 @@ $config = array
     
     'routes' => array
     (
-        '#/(.*)#' => 'default',
+        '/%s' => 'default2',
+        '/' => 'default',
     ),
 
     'handlers' => array
     (
-        'default' => array('DefaultController', 'default_action'),
+        'default'  => array('DefaultController', 'default_action'),
+        'default2' => array('DefaultController', 'default_2'),
     ),
 );
 
@@ -22,7 +24,12 @@ class DefaultController
 {
     function default_action($req)
     {
-        $req->reply_http("Hello World"); 
+        $req->reply_http(json_encode(array("message"=>"Hello, World!"))); 
+    }
+
+    function default_2($req)
+    {
+        $req->reply_http("Hello, ".$req->url_args[0]."!");
     }
 }
 

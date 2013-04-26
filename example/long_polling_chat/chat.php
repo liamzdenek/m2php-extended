@@ -9,10 +9,10 @@ $config = array
     
     'routes' => array
     (
-        '#/chat_submit#' => 'say',
-        '#/chat_poll#'   => 'poll',
-        "#/favicon.ico#" => 'favicon',
-        '#/(.*)#'        => 'default',
+        '/chat_submit' => 'say',
+        '/chat_poll'   => 'poll',
+        '/favicon.ico' => 'favicon',
+        '/%s'          => 'default',
     ),
 
     'handlers' => array
