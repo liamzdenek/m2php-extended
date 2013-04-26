@@ -1,4 +1,5 @@
 <?php
+namespace M2E\Async;
 
 class Looper
 {
@@ -20,7 +21,7 @@ class Looper
 
     function add($po)
     {
-        if(!is_subclass_of($po, "Pollable"))
+        if(!is_subclass_of($po, "\M2E\\Async\\Pollable"))
         {
             echo get_class($po)." is not a subclass of Pollable\n";
             exit(1);

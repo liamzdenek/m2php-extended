@@ -1,4 +1,5 @@
 <?php
+namespace M2E;
 ## potential names
 ## paradigm-php
 ## neutrino-php
@@ -28,7 +29,18 @@ class Server
         $config  = null,
         $_conn   = null,
         $_looper = null,
-        $class_cache = array();
+        $class_cache = array(),
+        $singletons = array();
+
+    function get_singleton($key)
+    {
+        return $this->singletons[$key];
+    }
+
+    function set_singleton($key, $singleton)
+    {
+        $this->singletons[$key] = $singleton;
+    }
 
     function __construct($config)
     {
@@ -87,16 +99,16 @@ class Server
                 }
             }
         );
-        $this->_looper = new Looper;
+        $this->_looper = new \M2E\Async\Looper;
         $this->_looper->add($this->_conn);
 
         if(!isset($this->config['session_class']))
         {
-            $this->config['session_class'] = 'FilesystemSession';
+            $this->config['session_class'] = '\M2E\FilesystemSession';
         }
         if(!isset($this->config['request_class']))
         {
-            $this->config['request_class'] = 'ERequest';
+            $this->config['request_class'] = '\M2E\ERequest';
         }
     }
 

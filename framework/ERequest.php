@@ -1,4 +1,5 @@
 <?php
+namespace M2E;
 
 class ERequest
 {

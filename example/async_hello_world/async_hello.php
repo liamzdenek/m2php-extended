@@ -37,6 +37,6 @@ class DefaultController
     }
 }
 
-$server = new Server($config);
+$server = new \M2E\Server($config);
 $server->run();
 

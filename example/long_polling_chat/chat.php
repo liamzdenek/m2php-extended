@@ -124,6 +124,6 @@ __EOS__;
     function favicon($req){$req->reply_http("", 404, "Not Found");}
 }
 
-$server = new Server($config);
+$server = new \M2E\Server($config);
 $server->run();
 

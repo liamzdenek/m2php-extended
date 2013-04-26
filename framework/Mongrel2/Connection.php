@@ -2,7 +2,7 @@
 
 namespace Mongrel2;
 
-class Connection extends \Pollable
+class Connection extends \M2E\Async\Pollable
 {
     private $sender_id;
     public $on_recv;

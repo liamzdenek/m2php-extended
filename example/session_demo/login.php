@@ -78,6 +78,6 @@ class DefaultController
         $req->redirect("/");
     }
 }
-$server = new Server($config);
+$server = new \M2E\Server($config);
 $server->run();
 

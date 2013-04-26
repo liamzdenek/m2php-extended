@@ -1,4 +1,5 @@
 <?php
+namespace M2E\Async;
 
 class PeriodicTimer extends Pollable
 {
